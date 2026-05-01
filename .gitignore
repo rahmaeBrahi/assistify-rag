@@ -1,0 +1,9 @@
+backend/assistify/ml_models/intent_classification/intent_model_finetuned/
+backend/assistify/ml_models/product_recommendation/semantic_embeddings.pkl
+frontend/node_modules/
+node_modules/
+env/
+.env
+db.sqlite3
+__pycache__/
+*.pyc

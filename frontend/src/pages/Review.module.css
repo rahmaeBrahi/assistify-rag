@@ -1,0 +1,123 @@
+.page {
+  padding: 48px 0 80px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 28px;
+}
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 580px;
+  margin: 0 auto;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.orderSection {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.orderSection h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.orderItems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.itemPrice {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--primary);
+  font-family: 'Sora', sans-serif;
+}
+
+.ratingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ratingSection label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.stars {
+  display: flex;
+  gap: 8px;
+}
+
+.star {
+  background: none;
+  border: none;
+  font-size: 38px;
+  color: #D1D5DB;
+  cursor: pointer;
+  transition: transform 0.15s, color 0.15s;
+  line-height: 1;
+  padding: 0;
+}
+
+.star:hover {
+  transform: scale(1.2);
+}
+
+.starFilled {
+  color: #F59E0B;
+}
+
+.ratingLabel {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.feedbackSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feedbackSection label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.feedbackSection textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.actions button {
+  flex: 1;
+  justify-content: center;
+}
