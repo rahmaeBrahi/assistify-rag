@@ -1,9 +1,47 @@
-backend/assistify/ml_models/intent_classification/intent_model_finetuned/
-backend/assistify/ml_models/product_recommendation/semantic_embeddings.pkl
-frontend/node_modules/
-node_modules/
-env/
-.env
-db.sqlite3
+# Python / Django
 __pycache__/
-*.pyc
+*.py[cod]
+*.sqlite3
+db.sqlite3
+.env
+venv/
+env/
+.venv/
+media/
+staticfiles/
+
+# Django secrets
+*.log
+local_settings.py
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.next/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env.local
+.env.production
+.env.development
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ML / Models
+*.h5
+*.keras
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.onnx
+*.bin
+*.safetensors
+models/
+checkpoints/
+runs/
