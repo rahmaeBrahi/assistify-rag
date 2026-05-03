@@ -134,24 +134,7 @@ export default function Integrations() {
           </div>
         </section>
 
-        <section className={styles.section}>
-          <div className={styles.sectionTitleRow}>
-            <span className={styles.sectionIcon}>🤖</span>
-            <div>
-              <h2>AI & LLM Integration</h2>
-              <p>Intelligent customer support</p>
-            </div>
-          </div>
-          <div className={styles.aiCard}>
-            <h4>🟣 Manus LLM</h4>
-            <p>Built-in platform LLM</p>
-            <div className={styles.aiFeatures}>
-              {["Multi-language support", "Arabic optimization", "Real-time processing", "Intelligent customer support", "Product recommendations", "Order tracking assistance"].map((f) => (
-                <span key={f} className={styles.aiFeatureChip}>✓ {f}</span>
-              ))}
-            </div>
-          </div>
-        </section>
+
       </div>
     </div>
   );

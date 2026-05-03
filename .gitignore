@@ -1,47 +1,87 @@
+# ========================
+
 # Python / Django
-__pycache__/
+
+# ========================
+
+**pycache**/
 *.py[cod]
 *.sqlite3
 db.sqlite3
 .env
+.env.*
+*.log
+
+# virtual environment
+
 venv/
 env/
 .venv/
-media/
+
+# Django static & media
+
 staticfiles/
+media/
 
-# Django secrets
-*.log
-local_settings.py
+# ========================
 
-# Node / Frontend
+# ML / Models (IMPORTANT)
+
+# ========================
+
+models/
+checkpoints/
+*.pt
+*.pth
+*.bin
+*.h5
+*.ckpt
+*.safetensors
+
+# HuggingFace / transformers cache
+
+.cache/
+huggingface/
+
+# ========================
+
+# Node / React
+
+# ========================
+
 node_modules/
-dist/
 build/
-.next/
+dist/
+
+# logs
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.env.local
-.env.production
-.env.development
 
-# IDE / OS
-.vscode/
-.idea/
+# ========================
+
+# OS files
+
+# ========================
+
 .DS_Store
 Thumbs.db
 
-# ML / Models
-*.h5
-*.keras
-*.pkl
-*.joblib
-*.pt
-*.pth
-*.onnx
-*.bin
-*.safetensors
-models/
-checkpoints/
-runs/
+# ========================
+
+# IDEs
+
+# ========================
+
+.vscode/
+.idea/
+
+# ========================
+
+# Misc
+
+# ========================
+
+*.swp
+*.bak*

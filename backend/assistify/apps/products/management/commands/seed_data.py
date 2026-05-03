@@ -3,7 +3,6 @@ from django.core.management.base import BaseCommand
 from assistify.apps.products.models import Product, ProductBenefit, Offer
 from assistify.apps.users.models import User
 from assistify.apps.orders.models import Order, OrderItem
-
 PRODUCTS = [
     {
         "id": 1,
@@ -156,22 +155,17 @@ PRODUCTS = [
         "related_ids": [4, 5],
     },
 ]
-
 OFFERS = [
     {"product_id": 2, "discount_percent": 20, "discounted_price": 1199},
     {"product_id": 4, "discount_percent": 15, "discounted_price": 2039},
     {"product_id": 5, "discount_percent": 25, "discounted_price": 2924},
 ]
-
-
 class Command(BaseCommand):
     help = "Seed database with initial Assistify products, offers, and user interactions for LightFM"
-
     def handle(self, *args, **options):
         self.stdout.write("Seeding products...")
         id_map = {}
         all_products = []
-
         for data in PRODUCTS:
             product, created = Product.objects.get_or_create(
                 name=data["name"],
@@ -184,20 +178,16 @@ class Command(BaseCommand):
             )
             id_map[data["id"]] = product
             all_products.append(product)
-
             if created:
                 for i, text in enumerate(data["benefits"]):
                     ProductBenefit.objects.create(product=product, text=text, order=i)
                 self.stdout.write(self.style.SUCCESS(f"  Created: {product.name}"))
             else:
                 self.stdout.write(f"  Exists:  {product.name}")
-
-        # Wire up related products
         for data in PRODUCTS:
             product = id_map[data["id"]]
             related = [id_map[rid] for rid in data["related_ids"] if rid in id_map]
             product.related_products.set(related)
-
         self.stdout.write("Seeding offers...")
         for offer_data in OFFERS:
             product = id_map.get(offer_data["product_id"])
@@ -213,8 +203,6 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.SUCCESS(f"  {status}: {product.name} — {offer.discount_percent}% off")
                 )
-
-        # Create Dummy Users and Interactions for LightFM
         self.stdout.write("Seeding user interactions for LightFM...")
         users = []
         for i in range(1, 6):
@@ -228,14 +216,10 @@ class Command(BaseCommand):
                 user.set_password('password123')
                 user.save()
                 self.stdout.write(f'  Created user: {username}')
-
         if users and all_products:
             for user in users:
-                # Each user "buys" 2-4 random products to create interaction data
                 num_purchases = random.randint(2, 4)
                 purchased_products = random.sample(all_products, num_purchases)
-                
-                # Create Order with correct fields from models.py
                 order = Order.objects.create(
                     user=user, 
                     customer_email=user.email,
@@ -243,7 +227,6 @@ class Command(BaseCommand):
                     total=0,
                     shipping_fee=50
                 )
-                
                 total_subtotal = 0
                 for product in purchased_products:
                     OrderItem.objects.create(
@@ -255,10 +238,8 @@ class Command(BaseCommand):
                         quantity=1
                     )
                     total_subtotal += product.price
-                
                 order.subtotal = total_subtotal
                 order.total = total_subtotal + order.shipping_fee
                 order.save()
                 self.stdout.write(f'  User {user.username} interacted with {num_purchases} products.')
-
         self.stdout.write(self.style.SUCCESS("\n✅ Seeding complete! LightFM now has data to learn from."))

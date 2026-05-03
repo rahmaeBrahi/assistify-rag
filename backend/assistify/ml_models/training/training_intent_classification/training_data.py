@@ -18,7 +18,6 @@ INTENT_MAP = {
     'recommendation_reasoning': 16,
     'confirmation': 17,
 }
-
 TRAINING_DATA = [
     ("Buy جهاز قياس نبضات القلب online", "purchase"),
     ("هل جهاز تنفس متوافق مع جهاز تنفس آخر؟", "product_details"),
@@ -5021,17 +5020,12 @@ TRAINING_DATA = [
     ("إزاي أستخدم جهاز قياس السمع؟", "support"),
     ("I need help with HbA1c meter", "inquiry"),
 ]
-
-
 def get_texts():
     return [text for text, _ in TRAINING_DATA]
-
 def get_labels():
     return [INTENT_MAP[label] for _, label in TRAINING_DATA]
-
 def get_label_names():
     return [label for _, label in TRAINING_DATA]
-
 if __name__ == "__main__":
     from collections import Counter
     labels = [label for _, label in TRAINING_DATA]

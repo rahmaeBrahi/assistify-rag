@@ -1,25 +1,17 @@
 from rest_framework import serializers
 from .models import Product, ProductBenefit, Offer
-
-
 class ProductBenefitSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductBenefit
         fields = ("id", "text", "order")
-
-
 class RelatedProductSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Product
         fields = ("id", "name", "price", "currency", "emoji", "description")
-
-
 class ProductSerializer(serializers.ModelSerializer):
     benefits = ProductBenefitSerializer(many=True, read_only=True)
     related_products = RelatedProductSerializer(many=True, read_only=True)
     offer = serializers.SerializerMethodField()
-
     class Meta:
         model = Product
         fields = (
@@ -36,7 +28,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
-
     def get_offer(self, obj):
         try:
             offer = obj.offer
@@ -45,25 +36,19 @@ class ProductSerializer(serializers.ModelSerializer):
         except Offer.DoesNotExist:
             pass
         return None
-
-
 class ProductWriteSerializer(serializers.ModelSerializer):
-    """Used for create / update by admin."""
-
     benefits = serializers.ListField(
         child=serializers.CharField(), write_only=True, required=False
     )
     related_product_ids = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Product.objects.all(), write_only=True, required=False, source="related_products"
     )
-
     class Meta:
         model = Product
         fields = (
             "id", "name", "description", "price", "currency", "emoji",
             "is_active", "benefits", "related_product_ids",
         )
-
     def create(self, validated_data):
         benefits_data = validated_data.pop("benefits", [])
         related = validated_data.pop("related_products", [])
@@ -72,7 +57,6 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         for i, text in enumerate(benefits_data):
             ProductBenefit.objects.create(product=product, text=text, order=i)
         return product
-
     def update(self, instance, validated_data):
         benefits_data = validated_data.pop("benefits", None)
         related = validated_data.pop("related_products", None)
@@ -86,15 +70,12 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             for i, text in enumerate(benefits_data):
                 ProductBenefit.objects.create(product=instance, text=text, order=i)
         return instance
-
-
 class OfferSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
     product_emoji = serializers.CharField(source="product.emoji", read_only=True)
     original_price = serializers.DecimalField(
         source="product.price", max_digits=10, decimal_places=2, read_only=True
     )
-
     class Meta:
         model = Offer
         fields = (

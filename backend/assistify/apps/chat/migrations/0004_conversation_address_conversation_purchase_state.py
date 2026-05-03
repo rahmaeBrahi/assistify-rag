@@ -1,11 +1,8 @@
 from django.db import migrations, models
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ("chat", "0003_conversation_language_conversation_last_intent_and_more"),
     ]
-
     operations = [
         migrations.AddField(
             model_name="conversation",

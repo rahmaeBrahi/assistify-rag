@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ChatView, ConversationHistoryView
+from .views import ChatView, ConversationHistoryView, WhatsAppWebhookView
 from .ml_views import (
     MLPipelineView,
     IntentClassificationView,
@@ -7,9 +7,9 @@ from .ml_views import (
     RecommendationView,
     ModelStatusView
 )
-
 urlpatterns = [
     path("", ChatView.as_view(), name="chat"),
+    path("whatsapp/webhook/", WhatsAppWebhookView.as_view(), name="whatsapp-webhook"),
     path("history/<int:conversation_id>/", ConversationHistoryView.as_view(), name="chat-history"),
     path("ml/pipeline/", MLPipelineView.as_view(), name="ml-pipeline"),
     path("ml/intent/", IntentClassificationView.as_view(), name="intent-classification"),
