@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt /app/
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir psutil sentence-transformers scikit-learn transformers torch
+    pip install --no-cache-dir psutil
 
 # Copy project
 COPY . /app/
