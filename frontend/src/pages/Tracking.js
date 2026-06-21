@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { fetchOrderByNumber } from "../services/api";
 import styles from "./Tracking.module.css";
@@ -7,10 +7,11 @@ import styles from "./Tracking.module.css";
 export default function Tracking() {
   const { lastOrder } = useCart();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const orderNumber = lastOrder?.orderNumber;
+  const orderNumber = searchParams.get("order") || lastOrder?.orderNumber;
 
   useEffect(() => {
     if (!orderNumber) { setLoading(false); return; }
@@ -76,7 +77,12 @@ export default function Tracking() {
                 <div className={styles.detailRows}>
                   {[
                     { label: "Order Number", value: order.order_number },
-                    { label: "Tracking Number", value: order.tracking_number || "N/A" },
+                    { label: "Tracking Number", value: order.tracking_url ? (
+                        <a href={order.tracking_url} target="_blank" rel="noopener noreferrer" style={{color: 'var(--primary)', textDecoration: 'underline'}}>
+                          {order.tracking_number}
+                        </a>
+                      ) : (order.tracking_number || "N/A") 
+                    },
                     { label: "Payment Method", value: order.payment_method === "cod" ? "Cash on Delivery" : "Card" },
                     { label: "Estimated Delivery", value: order.estimated_delivery || "TBD" },
                     { label: "Total", value: `EGP ${Number(order.total).toLocaleString()}` },

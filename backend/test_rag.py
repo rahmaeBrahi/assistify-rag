@@ -15,6 +15,10 @@ try:
 except Exception as e:
     print(f"Django setup skipped (no DB): {e}")
 
+import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 import json
 import urllib.request
 

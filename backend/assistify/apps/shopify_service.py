@@ -20,7 +20,27 @@ def shopify_graphql(query: str, variables: dict = None) -> dict:
     res.raise_for_status()
     return res.json()
 def get_shopify_products() -> list:
-    query = 
+    query = """
+    query {
+      products(first: 50) {
+        edges {
+          node {
+            id
+            title
+            description
+            variants(first: 1) {
+              edges {
+                node {
+                  id
+                  price
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
     try:
         data = shopify_graphql(query)
         products = []
@@ -42,7 +62,27 @@ def get_shopify_products() -> list:
         logging.getLogger(__name__).error("get_shopify_products error: %s", exc)
         return []
 def search_shopify_products(query_text: str) -> list:
-    query = 
+    query = """
+    query($query: String!) {
+      products(first: 50, query: $query) {
+        edges {
+          node {
+            id
+            title
+            description
+            variants(first: 1) {
+              edges {
+                node {
+                  id
+                  price
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
     try:
         data = shopify_graphql(query, {"query": query_text})
         products = []
@@ -71,7 +111,21 @@ def create_shopify_draft_order(
     address: str,
     email: str = None,
 ) -> dict:
-    mutation = 
+    mutation = """
+    mutation draftOrderCreate($input: DraftOrderInput!) {
+      draftOrderCreate(input: $input) {
+        draftOrder {
+          id
+          name
+          invoiceUrl
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    """
     first_name = ""
     last_name = ""
     if customer_name:
@@ -112,7 +166,16 @@ def create_shopify_draft_order(
         "status": "created",
     }
 def get_shopify_draft_order_status(draft_order_id: str) -> dict | None:
-    query = 
+    query = """
+    query($id: ID!) {
+      draftOrder(id: $id) {
+        id
+        name
+        invoiceUrl
+        status
+      }
+    }
+    """
     try:
         result = shopify_graphql(query, {"id": draft_order_id})
         if "errors" in result:

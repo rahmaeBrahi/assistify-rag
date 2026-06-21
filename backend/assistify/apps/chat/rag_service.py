@@ -34,7 +34,7 @@ LLM_MODEL: str = config(
 )
 EMBED_MODEL: str = config(
     "EMBED_MODEL",
-    default="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    default="openai/text-embedding-3-small",
 )
 MAX_HISTORY_TURNS: int = int(config("MAX_HISTORY_TURNS", default=10))
 RETRIEVAL_TOP_K: int = int(config("RETRIEVAL_TOP_K", default=5))
@@ -117,13 +117,16 @@ def _get_embeddings():
     global _embeddings
     if _embeddings is None:
         try:
-            from langchain_community.embeddings import HuggingFaceEmbeddings
-            _embeddings = HuggingFaceEmbeddings(
-                model_name=EMBED_MODEL,
-                model_kwargs={"device": "cpu"},
-                encode_kwargs={"normalize_embeddings": True},
+            from langchain_openai import OpenAIEmbeddings
+            if not OPENROUTER_API_KEY:
+                logger.warning("OPENROUTER_API_KEY not set — cannot load embeddings")
+                return None
+            _embeddings = OpenAIEmbeddings(
+                model=EMBED_MODEL,
+                openai_api_key=OPENROUTER_API_KEY,
+                openai_api_base=OPENROUTER_BASE_URL,
             )
-            logger.info("Embeddings model loaded: %s", EMBED_MODEL)
+            logger.info("Embeddings model loaded via OpenRouter: %s", EMBED_MODEL)
         except Exception as exc:
             logger.error("Failed to load embeddings: %s", exc)
             _embeddings = None

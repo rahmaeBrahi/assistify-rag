@@ -12,6 +12,9 @@ export default function ProductCard({ product, discountedPrice, discountPercent 
       )}
       <div className={styles.emoji}>{product.emoji}</div>
       <h3 className={styles.name}>{product.name}</h3>
+      {product.category_display && (
+        <span className={styles.categoryBadge}>{product.category_display}</span>
+      )}
       <p className={styles.desc}>{product.description}</p>
 
       {discountedPrice ? (

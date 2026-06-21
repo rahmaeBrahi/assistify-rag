@@ -118,3 +118,122 @@
   background: #EFF6FF;
   transform: translateY(-1px);
 }
+
+.notificationBtn {
+  position: relative;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notificationBtn:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #EF4444; /* Red color */
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 320px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  overflow: hidden;
+  z-index: 200;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.dropdownHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.markAllRead {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.markAllRead:hover {
+  text-decoration: underline;
+}
+
+.dropdownBody {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.notificationItem {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notificationItem:hover {
+  background: var(--bg);
+}
+
+.notificationItem.unread {
+  background: #f0f9ff;
+}
+
+.notificationTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.notificationMessage {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.notificationTime {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.emptyNotifications {
+  padding: 30px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}

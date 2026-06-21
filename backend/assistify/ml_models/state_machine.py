@@ -47,6 +47,7 @@ class PurchaseState(str, Enum):
     AWAITING_NAME = "awaiting_name"
     AWAITING_PHONE = "awaiting_phone"
     AWAITING_ADDRESS = "awaiting_address"
+    AWAITING_EMAIL = "awaiting_email"
     AWAITING_QUANTITY = "awaiting_quantity"
     READY_TO_ORDER = "ready_to_order"
 def extract_name(message: str, language: str) -> Optional[str]:
@@ -104,6 +105,8 @@ class StateMachine:
             return StateMachine._collect_phone(bundle, conv)
         if state == PurchaseState.AWAITING_ADDRESS:
             return StateMachine._collect_address(bundle, conv)
+        if state == PurchaseState.AWAITING_EMAIL:
+            return StateMachine._collect_email(bundle, conv)
         if state == PurchaseState.AWAITING_QUANTITY:
             return StateMachine._collect_quantity(bundle, conv)
         if state == PurchaseState.READY_TO_ORDER:
@@ -146,6 +149,15 @@ class StateMachine:
                 bundle.response = "تمام 😊 دلوقتي محتاجة عنوان التوصيل."
             else:
                 bundle.response = "Great 😊 Now I need your delivery address."
+            bundle.response_conf = 0.95
+            bundle.intent = "purchase_intent"
+            return True
+        if bundle.source == "web" and not bundle.email:
+            StateMachine._set_state(bundle, conv, PurchaseState.AWAITING_EMAIL)
+            if bundle.language == "ar":
+                bundle.response = "محتاجة الإيميل بتاعك عشان نرسل لك تفاصيل الطلب."
+            else:
+                bundle.response = "I need your email address to send you order details."
             bundle.response_conf = 0.95
             bundle.intent = "purchase_intent"
             return True
@@ -248,7 +260,9 @@ class StateMachine:
                     conv.save(update_fields=["address", "purchase_state"])
                 except Exception as exc:
                     logger.warning("Could not save address: %s", exc)
-            bundle.purchase_state = PurchaseState.AWAITING_QUANTITY
+            bundle.purchase_state = PurchaseState.AWAITING_EMAIL if bundle.source == "web" else PurchaseState.AWAITING_QUANTITY
+            if bundle.source == "web" and not bundle.email:
+                return StateMachine._collect_email(bundle, conv)
             if bundle.quantity:
                 return StateMachine._collect_quantity(bundle, conv)
             if bundle.language == "ar":
@@ -261,6 +275,41 @@ class StateMachine:
             bundle.response = "ممكن تبعتلي عنوان تفصيلي أكتر؟ (مثال: القاهرة - مدينة نصر - شارع عباس)"
         else:
             bundle.response = "Could you share a more detailed address? (e.g. Cairo, Nasr City, Abbas St.)"
+        bundle.response_conf = 0.95
+        return True
+    @staticmethod
+    def _collect_email(bundle: "SignalBundle", conv) -> bool:
+        email = bundle.email
+        if not email:
+            import re
+            tl = bundle.message.strip()
+            match = re.search(r"[\w\.-]+@[\w\.-]+\.\w+", tl)
+            if match:
+                email = match.group(0)
+        if email:
+            bundle.email = email
+            bundle.intent = "provide_email"
+            bundle.intent_conf = 1.0
+            if conv:
+                conv.email = email
+                conv.purchase_state = PurchaseState.AWAITING_QUANTITY.value
+                try:
+                    conv.save(update_fields=["email", "purchase_state"])
+                except Exception as exc:
+                    logger.warning("Could not save email: %s", exc)
+            bundle.purchase_state = PurchaseState.AWAITING_QUANTITY
+            if bundle.quantity:
+                return StateMachine._collect_quantity(bundle, conv)
+            if bundle.language == "ar":
+                bundle.response = "تمام 😊 كام قطعة تحبي تطلبي؟"
+            else:
+                bundle.response = "Got it! How many units would you like to order?"
+            bundle.response_conf = 0.95
+            return True
+        if bundle.language == "ar":
+            bundle.response = "ده مش شكل إيميل صحيح 😊 ممكن تبعت إيميلك؟ (مثال: email@example.com)"
+        else:
+            bundle.response = "That doesn't look like a valid email. Please provide your email address."
         bundle.response_conf = 0.95
         return True
     @staticmethod

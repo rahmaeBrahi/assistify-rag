@@ -1,6 +1,15 @@
 from django.db import models
 class Product(models.Model):
+    class CategoryChoices(models.TextChoices):
+        MONITORS = 'monitors', 'أجهزة قياس صحية'
+        VITAMINS = 'vitamins', 'فيتامينات ومكملات'
+        FIRST_AID = 'first_aid', 'إسعافات أولية'
+        ORTHOPEDICS = 'orthopedics', 'دعامات وعظام'
+        PERSONAL_CARE = 'personal_care', 'عناية شخصية'
+        DENTAL = 'dental', 'عناية بالأسنان'
+
     name = models.CharField(max_length=255)
+    category = models.CharField(max_length=50, choices=CategoryChoices.choices, default=CategoryChoices.PERSONAL_CARE)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=10, default="EGP")

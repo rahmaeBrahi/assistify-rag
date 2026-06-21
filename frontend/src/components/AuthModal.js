@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { login, register } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import styles from "./AuthModal.module.css";
 
 export default function AuthModal({ onClose }) {
+  const { loginUser } = useAuth();
   const [mode, setMode] = useState("login");  
   const [role, setRole] = useState("customer");
   const [email, setEmail] = useState("");
@@ -18,9 +20,10 @@ export default function AuthModal({ onClose }) {
     try {
       if (mode === "login") {
         const data = await login({ email, password });
+        loginUser(data.user);
         alert(`Welcome back, ${data.user.email}!`);
         if (data.user.role === "admin") {
-          window.open("http://localhost:8000/admin/", "_blank");
+          window.open("https://assistify-system-kuw2.vercel.app/admin/", "_blank");
         }
       } else {
         await register({ username, email, password, password2, role });

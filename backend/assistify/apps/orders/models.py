@@ -29,6 +29,7 @@ class Order(models.Model):
     delivery_address = models.TextField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     tracking_number = models.CharField(max_length=50, blank=True)
+    tracking_url = models.URLField(max_length=500, blank=True, null=True)
     estimated_delivery = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -36,9 +37,34 @@ class Order(models.Model):
         db_table = "orders"
         ordering = ["-created_at"]
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        old_status = None
+        if not is_new:
+            try:
+                old_order = Order.objects.get(pk=self.pk)
+                old_status = old_order.status
+            except Order.DoesNotExist:
+                pass
+
         if not self.order_number:
             self.order_number = self._generate_order_number()
+            
         super().save(*args, **kwargs)
+
+        if self.user:
+            from assistify.apps.users.models import Notification
+            if is_new:
+                Notification.objects.create(
+                    user=self.user,
+                    title="📦 طلب جديد",
+                    message=f"تم استلام طلبك رقم {self.order_number} وهو الآن قيد المعالجة."
+                )
+            elif old_status and old_status != self.status:
+                Notification.objects.create(
+                    user=self.user,
+                    title="📦 تحديث حالة الطلب",
+                    message=f"تغيرت حالة طلبك رقم {self.order_number} إلى: {self.get_status_display()}."
+                )
     @staticmethod
     def _generate_order_number():
         from django.utils import timezone
@@ -51,7 +77,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(
-        "products.Product", on_delete=models.SET_NULL, null=True, related_name="order_items"
+        "products.Product", on_delete=models.SET_NULL, null=True, blank=True, related_name="order_items"
     )
     product_name = models.CharField(max_length=255)
     product_emoji = models.CharField(max_length=10, blank=True)
@@ -61,6 +87,8 @@ class OrderItem(models.Model):
         db_table = "order_items"
     @property
     def line_total(self):
+        if self.unit_price is None or self.quantity is None:
+            return 0
         return self.unit_price * self.quantity
     def __str__(self):
         return f"{self.order.order_number} — {self.product_name} x{self.quantity}"

@@ -37,4 +37,5 @@ urlpatterns = [
     path("api/v1/products/", include("assistify.apps.products.urls")),
     path("api/v1/orders/", include("assistify.apps.orders.urls")),
     path("api/v1/chat/", include("assistify.apps.chat.urls")),
+    path("api/v1/messenger/", include("assistify.apps.messenger.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

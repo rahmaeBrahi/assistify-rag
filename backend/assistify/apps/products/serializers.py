@@ -12,11 +12,14 @@ class ProductSerializer(serializers.ModelSerializer):
     benefits = ProductBenefitSerializer(many=True, read_only=True)
     related_products = RelatedProductSerializer(many=True, read_only=True)
     offer = serializers.SerializerMethodField()
+    category_display = serializers.CharField(source='get_category_display', read_only=True)
     class Meta:
         model = Product
         fields = (
             "id",
             "name",
+            "category",
+            "category_display",
             "description",
             "price",
             "currency",

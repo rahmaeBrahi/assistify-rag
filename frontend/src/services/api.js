@@ -1,5 +1,5 @@
 const BASE_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:8000/api/v1";
+  process.env.REACT_APP_API_URL || "https://assistify-system-kuw2.vercel.app/api/v1";
 
 
 function getToken() {
@@ -16,6 +16,15 @@ async function request(path, options = {}) {
     },
     ...options,
   });
+
+  if (res.status === 401) {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    if (token) {
+      return request(path, options);
+    }
+  }
+
   const data = await res.json();
   if (!res.ok) throw data;
   return data;
@@ -46,6 +55,13 @@ export function logout() {
 
 export async function getMe() {
   return request("/auth/me/");
+}
+
+export async function updateMe(data) {
+  return request("/auth/me/", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 }
 
 
@@ -99,4 +115,20 @@ export async function sendChatMessage(message, conversationId = null) {
     body: JSON.stringify({ message, conversation_id: conversationId }),
   });
   return { reply: data.reply, conversationId: data.conversation_id };
+}
+
+export async function fetchNotifications() {
+  return request("/auth/notifications/");
+}
+
+export async function markNotificationAsRead(id) {
+  return request(`/auth/notifications/${id}/mark-read/`, {
+    method: "POST",
+  });
+}
+
+export async function markAllNotificationsAsRead() {
+  return request("/auth/notifications/mark-read/", {
+    method: "POST",
+  });
 }

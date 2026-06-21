@@ -1,0 +1,1 @@
+{"success": true, "response": "أهلاً بيك! إزيك؟ أنا أسستي، مساعدك الشخصي في المتجر. ممكن أساعدك إزاي النهارده؟ \nلو بتدور على أي مستلزمات طبية، عايز تعمل أوردر، أو تتابع طلبك، أنا موجود للمساعدة.", "intent": "greeting", "sentiment": "positive", "recommendations": [], "confidence": {"intent": 0.9, "sentiment": 0.8}, "metadata": {"session_id": "conv_None"}, "error": null}

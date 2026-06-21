@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import ChatWidget from "./components/ChatWidget";
 
@@ -13,11 +14,14 @@ import Tracking from "./pages/Tracking";
 import Review from "./pages/Review";
 import Offers from "./pages/Offers";
 import ChatPage from "./pages/ChatPage";
+import Profile from "./pages/Profile";
+import Orders from "./pages/Orders";
 
 export default function App() {
   return (
-    <CartProvider>
-      <BrowserRouter>
+    <AuthProvider>
+      <CartProvider>
+        <BrowserRouter>
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -30,9 +34,12 @@ export default function App() {
           <Route path="/review" element={<Review />} />
           <Route path="/offers" element={<Offers />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orders" element={<Orders />} />
         </Routes>
-        <ChatWidget />
-      </BrowserRouter>
-    </CartProvider>
+          <ChatWidget />
+        </BrowserRouter>
+      </CartProvider>
+    </AuthProvider>
   );
 }

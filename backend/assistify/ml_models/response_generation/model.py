@@ -3,7 +3,7 @@ import logging
 import ollama
 logger = logging.getLogger(__name__)
 class ResponseGenerationModel:
-    MODEL_NAME = "qwen2.5:7b"
+    MODEL_NAME = "qwen2.5:3b"
     MAX_RESPONSE_CHARS = 600
     _SIGNATURE_PATTERNS = [
         r"(?i)(best regards|regards|sincerely|yours truly)[^\n]*",
@@ -265,7 +265,7 @@ class ResponseGenerationModel:
         intent = intent or "inquiry"
         sentiment = sentiment or "neutral"
         msg = (message or "").strip().lower()
-        if self._is_unknown_input(msg):
+        if self._is_unknown_input(msg) or intent == "unknown":
             return self.UNKNOWN_INPUT_RESPONSE_AR if ar else self.UNKNOWN_INPUT_RESPONSE_EN
         if intent == "out_of_scope" or self._is_out_of_scope_message(msg, intent):
             return self.OUT_OF_SCOPE_RESPONSE_AR if ar else self.OUT_OF_SCOPE_RESPONSE_EN
@@ -336,56 +336,6 @@ class ResponseGenerationModel:
             return self.RECOMMENDATION_CLARIFICATION_AR if ar else self.RECOMMENDATION_CLARIFICATION_EN
         if self._is_no_product_found(intent, recommendations):
             return self.NO_PRODUCT_FOUND_RESPONSE_AR if ar else self.NO_PRODUCT_FOUND_RESPONSE_EN
-        if recommendations and intent in (
-            "inquiry",
-            "product_inquiry",
-            "product_details",
-            "price_inquiry",
-            "purchase",
-            "purchase_intent",
-            "recommendation_request",
-            "confirmation",
-        ):
-            product = recommendations[0]
-            name = product.get("name", "المنتج")
-            price = product.get("price")
-            currency = product.get("currency", "EGP")
-            description = product.get("description", "")
-            if price is None:
-                return self.NO_PRICE_AVAILABLE_RESPONSE_AR if ar else self.NO_PRICE_AVAILABLE_RESPONSE_EN
-            if ar:
-                display_name = self.PRODUCT_AR_NAMES.get(name, name)
-                display_desc = self.PRODUCT_AR_DESCRIPTIONS.get(name, description)
-                price_text = self._format_price(price, currency, "ar")
-                if intent in ("purchase", "purchase_intent", "confirmation"):
-                    return (
-                        f"تمام 😊 {display_name} سعره {price_text}. "
-                        "عشان نكمل الطلب، ممكن تبعتي الاسم ورقم الهاتف وعنوان التوصيل والكمية المطلوبة؟"
-                    )
-                if intent == "recommendation_request":
-                    return (
-                        f"أنصحك بـ {display_name}، {display_desc}. "
-                        f"سعره {price_text}. تحبي تشوفي خيارات تانية؟"
-                    )
-                return (
-                    f"{display_name} {display_desc}. "
-                    f"سعره {price_text}. تحبي أساعدك في الطلب؟"
-                )
-            price_text = self._format_price(price, currency, "en")
-            if intent in ("purchase", "purchase_intent", "confirmation"):
-                return (
-                    f"Sure 😊 The {name} costs {price_text}. "
-                    "To continue the order, please send your name, phone number, delivery address, and quantity."
-                )
-            if intent == "recommendation_request":
-                return (
-                    f"I recommend the {name}. {description}. "
-                    f"It costs {price_text}. Would you like to see more options?"
-                )
-            return (
-                f"The {name} is {description}. "
-                f"It costs {price_text}. Would you like help placing the order?"
-            )
         return None
     def _is_out_of_scope_message(self, message: str, intent: str) -> bool:
         out_of_scope_words = [
@@ -416,6 +366,10 @@ class ResponseGenerationModel:
                 return True
         if re.fullmatch(r"(.)\1{3,}", compact):
             return True
+        if re.search(r"^[^a-zA-Z\u0600-\u06FF\d]{3,}$|^(.)\1{4,}$|^[a-z]{5,}$", compact, re.IGNORECASE):
+            vowels = sum(1 for char in compact.lower() if char in "aeiouy")
+            if vowels == 0:
+                return True
         return False
     def _is_no_product_found(self, intent: str, recommendations: list) -> bool:
         product_intents = {
@@ -423,6 +377,9 @@ class ResponseGenerationModel:
             "product_inquiry",
             "product_details",
             "price_inquiry",
+            "inquiry",
+            "browse_products",
+            "recommendation_request",
         }
         return intent in product_intents and not recommendations
     def _is_cancel_order_message(self, message: str, intent: str) -> bool:
@@ -613,9 +570,11 @@ class ResponseGenerationModel:
     def _clean_response(self, text: str, language: str) -> str:
         text = self._remove_signatures(text)
         text = self._remove_foreign_leakage(text, language)
-        text = self._remove_markdown(text)
         text = self._trim_response(text)
-        text = re.sub(r"\s+", " ", text).strip()
+        # Collapse horizontal whitespace but preserve newlines
+        text = re.sub(r"[ \t\r\f\v]+", " ", text).strip()
+        # Clean up excessive newlines
+        text = re.sub(r"\n{3,}", "\n\n", text)
         return text or self._safe_fallback(language)
     def _remove_signatures(self, text: str) -> str:
         for pattern in self._SIGNATURE_PATTERNS:

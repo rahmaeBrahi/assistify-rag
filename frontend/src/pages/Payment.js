@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { placeOrder } from "../services/api";
 import styles from "./Payment.module.css";
 
 export default function Payment() {
   const { cart, subtotal, total, clearCart, setLastOrder } = useCart();
+  const { user } = useAuth();
   const [method, setMethod] = useState("card");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -13,9 +15,19 @@ export default function Payment() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (user) {
+      if (user.email) setEmail(user.email);
+      if (user.address) setAddress(user.address);
+      if (user.phone) setPhone(user.phone);
+    }
+  }, [user]);
+
   const confirmPayment = async () => {
     if (cart.length === 0) { alert("Your cart is empty!"); return; }
     if (!email) { alert("Please enter your email."); return; }
+    if (!address) { alert("Please enter your delivery address."); return; }
+    if (!phone) { alert("Please enter your phone number."); return; }
 
     setLoading(true);
     try {
@@ -71,8 +83,6 @@ export default function Payment() {
 
           <div className={styles.paymentCol}>
             <div className={styles.card}>
-              <h3>Payment Method</h3>
-
               <div className={styles.field} style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>Email *</label>
                 <input
@@ -83,6 +93,30 @@ export default function Payment() {
                   style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd" }}
                 />
               </div>
+
+              <div className={styles.field} style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>Delivery Address *</label>
+                <input
+                  type="text"
+                  placeholder="123 Main St, Cairo, Egypt"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd" }}
+                />
+              </div>
+
+              <div className={styles.field} style={{ marginBottom: 24 }}>
+                <label style={{ display: "block", marginBottom: 6, fontWeight: 500 }}>Phone Number *</label>
+                <input
+                  type="tel"
+                  placeholder="+20123456789"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd" }}
+                />
+              </div>
+
+              <h3>Payment Method</h3>
 
               <div className={styles.methods}>
                 <label className={`${styles.method} ${method === "card" ? styles.methodActive : ""}`}>
@@ -104,12 +138,6 @@ export default function Payment() {
                   <input type="radio" name="payment" value="cod" checked={method === "cod"} onChange={() => setMethod("cod")} />
                   <span className={styles.methodLabel}>🚚 Cash on Delivery</span>
                 </label>
-                {method === "cod" && (
-                  <div className={styles.methodFields}>
-                    <input type="text" placeholder="Delivery Address" value={address} onChange={(e) => setAddress(e.target.value)} />
-                    <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                  </div>
-                )}
               </div>
 
               <button
